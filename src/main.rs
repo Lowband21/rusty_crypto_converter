@@ -2,20 +2,24 @@
 use std::env;
 use std::process;
 
-use crypto_converter::{string_to_numbers, numbers_to_string};
+mod ceasar;
+use ceasar::{string_to_numbers, numbers_to_string};
+mod vigenere;
+use vigenere::{vigenere_encrypt, vigenere_decrypt};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if args.len() != 3 {
-        eprintln!("Usage: {} <to_num|to_str> \"<input>\"", args[0]);
+    if args.len() != 4 {
+        eprintln!("Usage: {} <ceasar_e|ceasar_d|vigenere_e|vigenere_d> \"<input>\" \"<key>\"", args[0]);
         process::exit(1);
     }
 
     let mode = &args[1];
     let input = &args[2];
+    let key = &args[3];
 
     match mode.as_str() {
-        "to_num" => {
+        "ceasar_e" => {
             let numbers = string_to_numbers(input);
             let numbers_str = numbers
                 .iter()
@@ -24,7 +28,7 @@ fn main() {
                 .join(" ");
             println!("{}", numbers_str);
         }
-        "to_str" => {
+        "ceasar_d" => {
             let numbers_result = input
                 .split_whitespace()
                 .map(|s| s.parse::<u8>())
@@ -41,8 +45,16 @@ fn main() {
                 }
             }
         }
+        "vigenere_e" => {
+            let encrypted = vigenere_encrypt(input, key);
+            println!("{}", encrypted);
+        }
+        "vigenere_d" => {
+            let decrypted = vigenere_decrypt(input, key);
+            println!("{}", decrypted);
+        }
         _ => {
-            eprintln!("Invalid mode. Use 'to_num' or 'to_str'.");
+            eprintln!("Invalid mode. Use 'ceasar_e', 'ceasar_d', 'vigenere_e', or 'vigenere_d'.");
             process::exit(1);
         }
     }
